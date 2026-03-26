@@ -1,0 +1,328 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" width="1200" height="1600" font-family="'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#E74C3C"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2980B9"/>
+    </marker>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3498DB"/>
+      <stop offset="100%" stop-color="#2C3E50"/>
+    </linearGradient>
+    <linearGradient id="armGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7F8C8D"/>
+      <stop offset="100%" stop-color="#95A5A6"/>
+    </linearGradient>
+    <radialGradient id="propGrad">
+      <stop offset="0%" stop-color="#E74C3C" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#E74C3C" stop-opacity="0.08"/>
+    </radialGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="1600" fill="#FAFBFC"/>
+
+  <!-- Title -->
+  <text x="600" y="50" text-anchor="middle" font-size="28" font-weight="bold" fill="#2C3E50">AI 영상 인식 기반 해안 미세플라스틱 탐지 수거 드론</text>
+  <text x="600" y="80" text-anchor="middle" font-size="16" fill="#7F8C8D">기술 구조 도면 (상면도 / 하면도 / 측면도)</text>
+  <line x1="100" y1="95" x2="1100" y2="95" stroke="#BDC3C7" stroke-width="1"/>
+
+  <!-- ===== SECTION 1: TOP VIEW ===== -->
+  <text x="600" y="135" text-anchor="middle" font-size="22" font-weight="bold" fill="#2C3E50">[상면도 - Top View]</text>
+
+  <g transform="translate(600, 370)" filter="url(#shadow)">
+    <!-- Drone Arms (X shape) -->
+    <line x1="-170" y1="-170" x2="-60" y2="-60" stroke="url(#armGrad)" stroke-width="14" stroke-linecap="round"/>
+    <line x1="170" y1="-170" x2="60" y2="-60" stroke="url(#armGrad)" stroke-width="14" stroke-linecap="round"/>
+    <line x1="-170" y1="170" x2="-60" y2="60" stroke="url(#armGrad)" stroke-width="14" stroke-linecap="round"/>
+    <line x1="170" y1="170" x2="60" y2="60" stroke="url(#armGrad)" stroke-width="14" stroke-linecap="round"/>
+
+    <!-- Propeller circles -->
+    <circle cx="-170" cy="-170" r="65" fill="url(#propGrad)" stroke="#E74C3C" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <circle cx="170" cy="-170" r="65" fill="url(#propGrad)" stroke="#E74C3C" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <circle cx="-170" cy="170" r="65" fill="url(#propGrad)" stroke="#E74C3C" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <circle cx="170" cy="170" r="65" fill="url(#propGrad)" stroke="#E74C3C" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Motor hubs -->
+    <circle cx="-170" cy="-170" r="12" fill="#E74C3C" stroke="#C0392B" stroke-width="2"/>
+    <circle cx="170" cy="-170" r="12" fill="#E74C3C" stroke="#C0392B" stroke-width="2"/>
+    <circle cx="-170" cy="170" r="12" fill="#E74C3C" stroke="#C0392B" stroke-width="2"/>
+    <circle cx="170" cy="170" r="12" fill="#E74C3C" stroke="#C0392B" stroke-width="2"/>
+
+    <!-- Propeller blades (stylized) -->
+    <g transform="translate(-170,-170) rotate(30)">
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4"/>
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4" transform="rotate(90)"/>
+    </g>
+    <g transform="translate(170,-170) rotate(-15)">
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4"/>
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4" transform="rotate(90)"/>
+    </g>
+    <g transform="translate(-170,170) rotate(15)">
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4"/>
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4" transform="rotate(90)"/>
+    </g>
+    <g transform="translate(170,170) rotate(-30)">
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4"/>
+      <ellipse rx="55" ry="8" fill="#E74C3C" opacity="0.4" transform="rotate(90)"/>
+    </g>
+
+    <!-- Main body -->
+    <rect x="-65" y="-65" width="130" height="130" rx="18" fill="url(#bodyGrad)" stroke="#1A252F" stroke-width="2"/>
+
+    <!-- AI Camera (top - forward facing) -->
+    <rect x="-20" y="-58" width="40" height="22" rx="5" fill="#1ABC9C" stroke="#16A085" stroke-width="1.5"/>
+    <circle cx="0" cy="-47" r="6" fill="#0E6655" stroke="#0B5345" stroke-width="1"/>
+    <text x="0" y="-43" text-anchor="middle" font-size="5" fill="white" font-weight="bold">AI</text>
+
+    <!-- FC + AI Board label -->
+    <text x="0" y="-8" text-anchor="middle" font-size="11" fill="white" font-weight="bold">FC Board</text>
+    <text x="0" y="8" text-anchor="middle" font-size="10" fill="#1ABC9C">+ AI Module</text>
+
+    <!-- GPS antenna -->
+    <rect x="-8" y="25" width="16" height="16" rx="8" fill="#F39C12" stroke="#E67E22" stroke-width="1.5"/>
+    <text x="0" y="36" text-anchor="middle" font-size="7" fill="white" font-weight="bold">GPS</text>
+
+    <!-- Battery indicator -->
+    <rect x="22" y="25" width="30" height="14" rx="3" fill="#27AE60" stroke="#1E8449" stroke-width="1"/>
+    <text x="37" y="35" text-anchor="middle" font-size="7" fill="white">BAT</text>
+
+    <!-- LED indicators on arms -->
+    <circle cx="-170" cy="-190" r="4" fill="#2ECC71"/>
+    <circle cx="170" cy="-190" r="4" fill="#2ECC71"/>
+    <circle cx="-170" cy="190" r="4" fill="#E74C3C"/>
+    <circle cx="170" cy="190" r="4" fill="#E74C3C"/>
+  </g>
+
+  <!-- Labels for top view -->
+  <!-- Motor labels -->
+  <line x1="345" y1="135" x2="395" y2="165" stroke="#E74C3C" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="280" y="132" font-size="12" fill="#E74C3C" font-weight="bold">Motor #1</text>
+  <text x="280" y="148" font-size="10" fill="#7F8C8D">허브모터 (125~130mm)</text>
+
+  <line x1="855" y1="135" x2="805" y2="165" stroke="#E74C3C" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="840" y="132" font-size="12" fill="#E74C3C" font-weight="bold">Motor #2</text>
+
+  <!-- Propeller label -->
+  <line x1="855" y1="475" x2="805" y2="505" stroke="#E74C3C" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="840" y="470" font-size="12" fill="#E74C3C" font-weight="bold">프로펠러</text>
+  <text x="840" y="486" font-size="10" fill="#7F8C8D">직경 72~78mm</text>
+
+  <!-- Camera label -->
+  <line x1="720" y1="280" x2="635" y2="310" stroke="#2980B9" stroke-width="1" marker-end="url(#arrow-blue)"/>
+  <text x="725" y="275" font-size="12" fill="#2980B9" font-weight="bold">전방 AI 카메라 (RGB)</text>
+  <text x="725" y="291" font-size="10" fill="#7F8C8D">장애물 감지용</text>
+
+  <!-- GPS label -->
+  <line x1="480" y1="440" x2="565" y2="405" stroke="#F39C12" stroke-width="1"/>
+  <text x="415" y="455" font-size="12" fill="#F39C12" font-weight="bold">GPS 모듈</text>
+  <text x="415" y="471" font-size="10" fill="#7F8C8D">자율비행 경로용</text>
+
+  <!-- Body label -->
+  <line x1="720" y1="365" x2="670" y2="370" stroke="#2C3E50" stroke-width="1"/>
+  <text x="725" y="355" font-size="12" fill="#2C3E50" font-weight="bold">본체 (FC + AI 보드)</text>
+  <text x="725" y="371" font-size="10" fill="#7F8C8D">YOLO 기반 딥러닝 탑재</text>
+
+  <!-- LED label -->
+  <text x="345" y="565" font-size="10" fill="#E74C3C">후방 LED (적색)</text>
+  <text x="705" y="565" font-size="10" fill="#2ECC71">전방 LED (녹색)</text>
+
+  <line x1="100" y1="600" x2="1100" y2="600" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="5,5"/>
+
+  <!-- ===== SECTION 2: BOTTOM VIEW ===== -->
+  <text x="600" y="640" text-anchor="middle" font-size="22" font-weight="bold" fill="#2C3E50">[하면도 - Bottom View]</text>
+
+  <g transform="translate(600, 860)" filter="url(#shadow)">
+    <!-- Drone Arms (X shape) - lighter to show bottom -->
+    <line x1="-170" y1="-170" x2="-60" y2="-60" stroke="#BDC3C7" stroke-width="12" stroke-linecap="round"/>
+    <line x1="170" y1="-170" x2="60" y2="-60" stroke="#BDC3C7" stroke-width="12" stroke-linecap="round"/>
+    <line x1="-170" y1="170" x2="-60" y2="60" stroke="#BDC3C7" stroke-width="12" stroke-linecap="round"/>
+    <line x1="170" y1="170" x2="60" y2="60" stroke="#BDC3C7" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Propeller circles (faded) -->
+    <circle cx="-170" cy="-170" r="65" fill="none" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,3"/>
+    <circle cx="170" cy="-170" r="65" fill="none" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,3"/>
+    <circle cx="-170" cy="170" r="65" fill="none" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,3"/>
+    <circle cx="170" cy="170" r="65" fill="none" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- Motor (bottom view) -->
+    <circle cx="-170" cy="-170" r="10" fill="#BDC3C7" stroke="#95A5A6" stroke-width="1.5"/>
+    <circle cx="170" cy="-170" r="10" fill="#BDC3C7" stroke="#95A5A6" stroke-width="1.5"/>
+    <circle cx="-170" cy="170" r="10" fill="#BDC3C7" stroke="#95A5A6" stroke-width="1.5"/>
+    <circle cx="170" cy="170" r="10" fill="#BDC3C7" stroke="#95A5A6" stroke-width="1.5"/>
+
+    <!-- Main body bottom -->
+    <rect x="-65" y="-65" width="130" height="130" rx="18" fill="#34495E" stroke="#2C3E50" stroke-width="2"/>
+
+    <!-- Bottom AI Camera (downward facing) -->
+    <rect x="-25" y="-50" width="50" height="35" rx="6" fill="#8E44AD" stroke="#7D3C98" stroke-width="1.5"/>
+    <circle cx="0" cy="-32" r="10" fill="#5B2C6F" stroke="#4A235A" stroke-width="1.5"/>
+    <circle cx="0" cy="-32" r="5" fill="#1ABC9C"/>
+    <text x="0" y="-13" text-anchor="middle" font-size="7" fill="white" font-weight="bold">AI CAM</text>
+
+    <!-- Suction nozzle -->
+    <rect x="-45" y="5" width="35" height="45" rx="4" fill="#E67E22" stroke="#D35400" stroke-width="1.5"/>
+    <circle cx="-27" cy="17" r="8" fill="#D35400" stroke="#A04000" stroke-width="1"/>
+    <text x="-27" y="20" text-anchor="middle" font-size="6" fill="white">O</text>
+    <text x="-27" y="42" text-anchor="middle" font-size="7" fill="white" font-weight="bold">흡입</text>
+
+    <!-- Gripper arm -->
+    <rect x="10" y="5" width="35" height="45" rx="4" fill="#2ECC71" stroke="#27AE60" stroke-width="1.5"/>
+    <!-- Gripper jaws -->
+    <line x1="20" y1="15" x2="27" y2="25" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="35" y1="15" x2="28" y2="25" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="27" y="42" text-anchor="middle" font-size="7" fill="white" font-weight="bold">집게</text>
+
+    <!-- Collection bin (detachable) -->
+    <rect x="-55" y="60" width="110" height="30" rx="6" fill="#3498DB" stroke="#2980B9" stroke-width="2" stroke-dasharray="6,3"/>
+    <text x="0" y="79" text-anchor="middle" font-size="10" fill="white" font-weight="bold">탈착식 수거함</text>
+
+    <!-- Landing gear indicators -->
+    <rect x="-70" y="-80" width="8" height="25" rx="4" fill="#95A5A6"/>
+    <rect x="62" y="-80" width="8" height="25" rx="4" fill="#95A5A6"/>
+    <rect x="-70" y="55" width="8" height="25" rx="4" fill="#95A5A6"/>
+    <rect x="62" y="55" width="8" height="25" rx="4" fill="#95A5A6"/>
+  </g>
+
+  <!-- Labels for bottom view -->
+  <!-- AI Camera -->
+  <line x1="730" y1="795" x2="650" y2="825" stroke="#8E44AD" stroke-width="1"/>
+  <text x="735" y="790" font-size="12" fill="#8E44AD" font-weight="bold">하부 AI 카메라</text>
+  <text x="735" y="806" font-size="10" fill="#7F8C8D">지면 스캔 (YOLO 탐지)</text>
+  <text x="735" y="820" font-size="10" fill="#7F8C8D">미세플라스틱 5mm 이하 인식</text>
+
+  <!-- Suction nozzle -->
+  <line x1="440" y1="880" x2="530" y2="870" stroke="#E67E22" stroke-width="1"/>
+  <text x="350" y="878" font-size="12" fill="#E67E22" font-weight="bold">흡입 노즐</text>
+  <text x="350" y="894" font-size="10" fill="#7F8C8D">미세플라스틱 흡입용</text>
+
+  <!-- Gripper -->
+  <line x1="760" y1="875" x2="660" y2="870" stroke="#2ECC71" stroke-width="1"/>
+  <text x="765" y="870" font-size="12" fill="#2ECC71" font-weight="bold">소형 집게 암</text>
+  <text x="765" y="886" font-size="10" fill="#7F8C8D">소형 쓰레기 수거용</text>
+  <text x="765" y="900" font-size="10" fill="#7F8C8D">(교체식 모듈)</text>
+
+  <!-- Collection bin -->
+  <line x1="760" y1="935" x2="660" y2="925" stroke="#3498DB" stroke-width="1"/>
+  <text x="765" y="930" font-size="12" fill="#3498DB" font-weight="bold">탈착식 수거함</text>
+  <text x="765" y="946" font-size="10" fill="#7F8C8D">가득 차면 지정 장소 투하</text>
+
+  <!-- Landing gear -->
+  <line x1="440" y1="790" x2="500" y2="790" stroke="#95A5A6" stroke-width="1"/>
+  <text x="370" y="788" font-size="11" fill="#95A5A6">랜딩기어</text>
+
+  <line x1="100" y1="1000" x2="1100" y2="1000" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="5,5"/>
+
+  <!-- ===== SECTION 3: SIDE VIEW ===== -->
+  <text x="600" y="1040" text-anchor="middle" font-size="22" font-weight="bold" fill="#2C3E50">[측면도 - Side View]</text>
+
+  <g transform="translate(600, 1220)" filter="url(#shadow)">
+    <!-- Left arm -->
+    <line x1="-220" y1="-30" x2="-70" y2="-30" stroke="url(#armGrad)" stroke-width="10" stroke-linecap="round"/>
+    <!-- Right arm -->
+    <line x1="70" y1="-30" x2="220" y2="-30" stroke="url(#armGrad)" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- Left motor + propeller -->
+    <rect x="-235" y="-45" width="30" height="30" rx="5" fill="#E74C3C" stroke="#C0392B" stroke-width="1.5"/>
+    <line x1="-270" y1="-48" x2="-190" y2="-48" stroke="#E74C3C" stroke-width="2" opacity="0.5"/>
+    <ellipse cx="-220" cy="-48" rx="50" ry="3" fill="#E74C3C" opacity="0.3"/>
+
+    <!-- Right motor + propeller -->
+    <rect x="205" y="-45" width="30" height="30" rx="5" fill="#E74C3C" stroke="#C0392B" stroke-width="1.5"/>
+    <line x1="190" y1="-48" x2="270" y2="-48" stroke="#E74C3C" stroke-width="2" opacity="0.5"/>
+    <ellipse cx="220" cy="-48" rx="50" ry="3" fill="#E74C3C" opacity="0.3"/>
+
+    <!-- Main body -->
+    <rect x="-70" y="-55" width="140" height="50" rx="12" fill="url(#bodyGrad)" stroke="#1A252F" stroke-width="2"/>
+
+    <!-- Forward camera -->
+    <rect x="-75" y="-45" width="18" height="18" rx="4" fill="#1ABC9C" stroke="#16A085" stroke-width="1"/>
+    <circle cx="-66" cy="-36" r="4" fill="#0E6655"/>
+
+    <!-- GPS on top -->
+    <rect x="-10" y="-68" width="20" height="13" rx="6" fill="#F39C12" stroke="#E67E22" stroke-width="1"/>
+    <text x="0" y="-59" text-anchor="middle" font-size="6" fill="white">GPS</text>
+
+    <!-- Landing gear legs -->
+    <line x1="-50" y1="-5" x2="-60" y2="30" stroke="#7F8C8D" stroke-width="3" stroke-linecap="round"/>
+    <line x1="50" y1="-5" x2="60" y2="30" stroke="#7F8C8D" stroke-width="3" stroke-linecap="round"/>
+    <line x1="-75" y1="30" x2="-45" y2="30" stroke="#7F8C8D" stroke-width="3" stroke-linecap="round"/>
+    <line x1="45" y1="30" x2="75" y2="30" stroke="#7F8C8D" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Bottom camera -->
+    <rect x="-15" y="0" width="30" height="20" rx="4" fill="#8E44AD" stroke="#7D3C98" stroke-width="1.5"/>
+    <circle cx="0" cy="10" r="6" fill="#5B2C6F"/>
+    <circle cx="0" cy="10" r="3" fill="#1ABC9C"/>
+    <!-- Camera view cone -->
+    <polygon points="0,20 -40,80 40,80" fill="#8E44AD" opacity="0.1" stroke="#8E44AD" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+    <!-- Suction + Gripper unit -->
+    <rect x="-35" y="22" width="25" height="30" rx="3" fill="#E67E22" stroke="#D35400" stroke-width="1"/>
+    <rect x="10" y="22" width="25" height="30" rx="3" fill="#2ECC71" stroke="#27AE60" stroke-width="1"/>
+
+    <!-- Collection bin -->
+    <rect x="-40" y="55" width="80" height="22" rx="5" fill="#3498DB" stroke="#2980B9" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="0" y="69" text-anchor="middle" font-size="8" fill="white" font-weight="bold">수거함</text>
+
+    <!-- Ground surface -->
+    <line x1="-300" y1="100" x2="300" y2="100" stroke="#D4AC0D" stroke-width="2"/>
+    <text x="0" y="118" text-anchor="middle" font-size="11" fill="#D4AC0D">해안 지면 (모래/자갈)</text>
+    <!-- Microplastics on ground -->
+    <circle cx="-80" cy="95" r="3" fill="#E74C3C" opacity="0.6"/>
+    <circle cx="-40" cy="97" r="2" fill="#3498DB" opacity="0.6"/>
+    <circle cx="20" cy="94" r="2.5" fill="#E74C3C" opacity="0.6"/>
+    <circle cx="70" cy="96" r="1.8" fill="#2ECC71" opacity="0.6"/>
+    <circle cx="110" cy="95" r="3" fill="#F39C12" opacity="0.6"/>
+    <text x="0" y="135" text-anchor="middle" font-size="10" fill="#E74C3C">* 미세플라스틱 (5mm 이하)</text>
+  </g>
+
+  <!-- Side view labels -->
+  <line x1="250" y1="1175" x2="320" y2="1185" stroke="#1ABC9C" stroke-width="1"/>
+  <text x="155" y="1172" font-size="11" fill="#1ABC9C" font-weight="bold">전방 카메라</text>
+
+  <line x1="750" y1="1130" x2="640" y2="1155" stroke="#F39C12" stroke-width="1"/>
+  <text x="755" y="1128" font-size="11" fill="#F39C12" font-weight="bold">GPS 안테나</text>
+
+  <line x1="270" y1="1230" x2="355" y2="1230" stroke="#8E44AD" stroke-width="1"/>
+  <text x="155" y="1233" font-size="11" fill="#8E44AD" font-weight="bold">하부 AI 카메라</text>
+
+  <line x1="270" y1="1255" x2="325" y2="1245" stroke="#E67E22" stroke-width="1"/>
+  <text x="155" y="1258" font-size="11" fill="#E67E22" font-weight="bold">흡입 노즐</text>
+
+  <line x1="760" y1="1245" x2="670" y2="1245" stroke="#2ECC71" stroke-width="1"/>
+  <text x="770" y="1248" font-size="11" fill="#2ECC71" font-weight="bold">집게 암</text>
+
+  <line x1="760" y1="1280" x2="685" y2="1278" stroke="#3498DB" stroke-width="1"/>
+  <text x="770" y="1283" font-size="11" fill="#3498DB" font-weight="bold">탈착식 수거함</text>
+
+  <!-- Camera scan cone label -->
+  <text x="680" y="1310" font-size="10" fill="#8E44AD" font-style="italic">AI 카메라 스캔 범위</text>
+
+  <line x1="100" y1="1400" x2="1100" y2="1400" stroke="#BDC3C7" stroke-width="1"/>
+
+  <!-- ===== SECTION 4: SPEC TABLE ===== -->
+  <text x="600" y="1430" text-anchor="middle" font-size="16" font-weight="bold" fill="#2C3E50">[주요 사양]</text>
+
+  <!-- Spec items -->
+  <g font-size="12" fill="#2C3E50">
+    <text x="150" y="1460"><tspan font-weight="bold" fill="#3498DB">드론 유형:</tspan> 쿼드콥터</text>
+    <text x="450" y="1460"><tspan font-weight="bold" fill="#3498DB">휠베이스:</tspan> 125~130mm</text>
+    <text x="750" y="1460"><tspan font-weight="bold" fill="#3498DB">프로펠러:</tspan> 72~78mm</text>
+
+    <text x="150" y="1485"><tspan font-weight="bold" fill="#3498DB">무게:</tspan> 80~120g (배터리 포함)</text>
+    <text x="450" y="1485"><tspan font-weight="bold" fill="#3498DB">배터리:</tspan> 5V / 1150mAh</text>
+    <text x="750" y="1485"><tspan font-weight="bold" fill="#3498DB">AI:</tspan> YOLO 기반 객체 탐지</text>
+
+    <text x="150" y="1510"><tspan font-weight="bold" fill="#3498DB">센서:</tspan> RGB 카메라 x2 + GPS</text>
+    <text x="450" y="1510"><tspan font-weight="bold" fill="#3498DB">수거방식:</tspan> 흡입 + 집게 (모듈형)</text>
+    <text x="750" y="1510"><tspan font-weight="bold" fill="#3498DB">수거함:</tspan> 탈착식 (투하 가능)</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="600" y="1570" text-anchor="middle" font-size="11" fill="#95A5A6">제3회 국제 창의 AI드론 경진대회 (Enjoy AI Korea) - 지식재산 미션 도면</text>
+  <text x="600" y="1590" text-anchor="middle" font-size="10" fill="#BDC3C7">Designed for Competition Submission</text>
+</svg>
