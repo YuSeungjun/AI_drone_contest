@@ -36,12 +36,11 @@ import whalesbot
 # [설정값] 대회 당일 조정
 # ─────────────────────────────────────────────
 
-FLIGHT_SPEED = 30   # fly_setspeed 파라미터
+FLIGHT_SPEED = 30
 
-BASE_POS_X = 15     # 베이스 중심 X (cm)
-BASE_POS_Y = 15     # 베이스 중심 Y (cm)
+BASE_POS_X = 15
+BASE_POS_Y = 15
 
-# 장애물 좌표 (cm) - 대회 당일 수정 필수!
 OBS_RING1_X = 100
 OBS_RING1_Y = 100
 OBS_RING2_X = 200
@@ -57,7 +56,6 @@ OBS_PPAIR_Y = 150
 OBS_HRING_X = 150
 OBS_HRING_Y = 250
 
-# 장애물별 높이 (cm) - 대회 당일 수정 필수!
 H_RING1 = 70
 H_RING2 = 100
 H_SBAR = 60
@@ -67,13 +65,11 @@ H_PPAIR = 80
 H_HRING = 50
 
 # ─────────────────────────────────────────────
-# [상태 변수]
+# [상태 변수] 리스트로 관리 (global 키워드 미지원 대응)
+# state[0] = cur_x, state[1] = cur_y, state[2] = cur_h, state[3] = score
 # ─────────────────────────────────────────────
 
-cur_x = BASE_POS_X
-cur_y = BASE_POS_Y
-cur_h = 0
-score = 0
+state = [BASE_POS_X, BASE_POS_Y, 0, 0]
 
 # ─────────────────────────────────────────────
 # [기본 비행 함수]
@@ -89,7 +85,6 @@ def init_drone():
 
 
 def takeoff(height_cm):
-    global cur_h
     whalesbot.fly_start()
     whalesbot.wait(3)
     if height_cm > 0:
@@ -97,15 +92,14 @@ def takeoff(height_cm):
         whalesbot.wait(3)
     whalesbot.fly_hover()
     whalesbot.wait(1)
-    cur_h = height_cm
+    state[2] = height_cm
 
 
 def land():
-    global cur_h
     whalesbot.fly_land()
     whalesbot.wait(3)
     whalesbot.fly_lock()
-    cur_h = 0
+    state[2] = 0
 
 
 def forward(cm):
@@ -137,21 +131,19 @@ def go_right(cm):
 
 
 def go_up(cm):
-    global cur_h
     whalesbot.fly_move_dis(4, cm)
     whalesbot.wait(2)
     whalesbot.fly_hover()
     whalesbot.wait(0.5)
-    cur_h = cur_h + cm
+    state[2] = state[2] + cm
 
 
 def go_down(cm):
-    global cur_h
     whalesbot.fly_move_dis(5, cm)
     whalesbot.wait(2)
     whalesbot.fly_hover()
     whalesbot.wait(0.5)
-    cur_h = cur_h - cm
+    state[2] = state[2] - cm
 
 
 def turn_cw(deg):
@@ -174,13 +166,11 @@ def hover(sec):
 
 
 def set_height(target_cm):
-    global cur_h
-    diff = target_cm - cur_h
+    diff = target_cm - state[2]
     if diff > 0:
         go_up(diff)
     elif diff < 0:
         go_down(-diff)
-    cur_h = target_cm
 
 
 # ─────────────────────────────────────────────
@@ -188,29 +178,24 @@ def set_height(target_cm):
 # ─────────────────────────────────────────────
 
 def navigate(tx, ty, th):
-    """현재 위치에서 (tx, ty) 좌표, th 높이로 이동"""
-    global cur_x, cur_y
-
     set_height(th)
 
-    dx = tx - cur_x
-    dy = ty - cur_y
+    dx = tx - state[0]
+    dy = ty - state[1]
 
-    # X축 (좌우)
     if dx > 0:
         go_right(dx)
     elif dx < 0:
         go_left(-dx)
 
-    # Y축 (전후)
     if dy > 0:
         forward(dy)
     elif dy < 0:
         backward(-dy)
 
     hover(0.5)
-    cur_x = tx
-    cur_y = ty
+    state[0] = tx
+    state[1] = ty
 
 
 # ─────────────────────────────────────────────
@@ -218,10 +203,6 @@ def navigate(tx, ty, th):
 # ─────────────────────────────────────────────
 
 def fly_arc(radius_cm, angle_deg, cw):
-    """
-    원호 비행
-    cw = 1 이면 시계방향, cw = 0 이면 반시계방향
-    """
     steps = angle_deg // 30
     if steps < 4:
         steps = 4
@@ -246,107 +227,84 @@ def fly_arc(radius_cm, angle_deg, cw):
 # ─────────────────────────────────────────────
 
 def task_takeoff():
-    """과제 1: 이륙 (40점)"""
-    global score
     init_drone()
     takeoff(80)
     hover(1)
-    score = score + 40
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 40
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_ring(rx, ry, rh):
-    """과제 2: 수직 링 통과 (50점)"""
-    global score
     navigate(rx, ry, rh)
     hover(0.5)
     forward(80)
     hover(0.5)
-    score = score + 50
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 50
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_obstacle():
-    """과제 3: 장애물 통과 (40+60 = 100점)"""
-    global score
-
-    # 가로봉 아래로 통과
     navigate(OBS_SBAR_X, OBS_SBAR_Y, H_SBAR - 20)
     forward(60)
     hover(0.3)
-    score = score + 40
+    state[3] = state[3] + 40
 
-    # 상승 후 가로봉 주위 360도 회전
     go_up(40)
     fly_arc(30, 360, 1)
     hover(0.3)
-    score = score + 60
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 60
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_double_bar():
-    """과제 4: 이중 가로봉 (40+60+80 = 180점)"""
-    global score
-
     navigate(OBS_DBAR_X, OBS_DBAR_Y, H_DBAR)
 
-    # 두 가로봉 사이 통과
     forward(50)
     hover(0.3)
-    score = score + 40
+    state[3] = state[3] + 40
 
-    # 가로봉 하나 주위 회전
     go_up(30)
     fly_arc(25, 360, 1)
     hover(0.3)
-    score = score + 60
+    state[3] = state[3] + 60
 
-    # 8자 비행
-    fly_arc(25, 360, 0)  # 반시계
-    fly_arc(25, 360, 1)  # 시계
+    fly_arc(25, 360, 0)
+    fly_arc(25, 360, 1)
     hover(0.5)
-    score = score + 80
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 80
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_pillar():
-    """과제 5: 기둥 선회 (60점)"""
-    global score
     navigate(OBS_PILLAR_X, OBS_PILLAR_Y, H_PILLAR)
     fly_arc(40, 360, 1)
     hover(0.5)
-    score = score + 60
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 60
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_s_flight():
-    """과제 6: 두 기둥 S자 비행 (80점)"""
-    global score
     navigate(OBS_PPAIR_X, OBS_PPAIR_Y, H_PPAIR)
-    fly_arc(35, 180, 0)  # 첫 번째 기둥 반시계 반원
-    fly_arc(35, 180, 1)  # 두 번째 기둥 시계 반원
+    fly_arc(35, 180, 0)
+    fly_arc(35, 180, 1)
     hover(0.5)
-    score = score + 80
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 80
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_horizontal_ring():
-    """과제 7: 수평 링 상승 통과 (70점)"""
-    global score
     navigate(OBS_HRING_X, OBS_HRING_Y, H_HRING)
     hover(0.5)
     go_up(60)
     hover(0.5)
-    score = score + 70
-    whalesbot.DebugValue("score", score)
+    state[3] = state[3] + 70
+    whalesbot.DebugValue("score", state[3])
 
 
 def task_return():
-    """과제 8: 베이스 복귀 착륙 (40점)"""
-    global score, cur_x, cur_y
     set_height(80)
-    dx = BASE_POS_X - cur_x
-    dy = BASE_POS_Y - cur_y
+    dx = BASE_POS_X - state[0]
+    dy = BASE_POS_Y - state[1]
 
     if dx > 0:
         go_right(dx)
@@ -360,22 +318,20 @@ def task_return():
 
     hover(1)
     land()
-    cur_x = BASE_POS_X
-    cur_y = BASE_POS_Y
-    score = score + 40
-    whalesbot.DebugValue("score", score)
+    state[0] = BASE_POS_X
+    state[1] = BASE_POS_Y
+    state[3] = state[3] + 40
+    whalesbot.DebugValue("score", state[3])
 
 
 # ─────────────────────────────────────────────
 # [메인 실행]
 # ─────────────────────────────────────────────
-# 전략: "default" = 고배점 우선, "safe" = 쉬운것부터, "speed" = 가까운것부터
 
 STRATEGY = "default"
 
 whalesbot.resettime()
 
-# 과제 1: 이륙 (필수)
 task_takeoff()
 
 if STRATEGY == "default":
@@ -405,9 +361,7 @@ elif STRATEGY == "speed":
     task_s_flight()
     task_horizontal_ring()
 
-# 과제 8: 베이스 복귀 (필수)
 task_return()
 
-# 결과 표시
-whalesbot.DebugValue("final_score", score)
+whalesbot.DebugValue("final_score", state[3])
 whalesbot.DebugValue("time_sec", whalesbot.seconds())
