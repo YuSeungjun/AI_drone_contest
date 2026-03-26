@@ -1,367 +1,540 @@
 """
 =============================================================================
-제3회 국제 창의 AI 드론 경진대회 (Enjoy AI Korea) - 자율비행 미션 코드
+제3회 국제 창의 AI 드론 경진대회 - 자율비행 미션 코드
 =============================================================================
-
-드론: WhalesBot Eagle (가이온에듀테크 이글드론)
-필드: 300x300cm, 비전 태그 기반 위치 인식
-제한시간: 라운드당 180초
+드론: WhalesBot Eagle
 환경: WhalesBot Python 전용 (import whalesbot만 허용)
-
-과제별 배점:
-  1. 이륙                               : 40점
-  2. 링 통과 x2                         : 50 x 2 = 100점
-  3. 장애물 통과 (아래+회전)             : 40 + 60 = 100점
-  4. 이중 가로봉 (사이+회전+8자)         : 40 + 60 + 80 = 180점
-  5. 기둥 선회                           : 60점
-  6. 두 기둥 S자 비행                    : 80점
-  7. 수평 링 상승 통과                   : 70점
-  8. 베이스 복귀                         : 40점
-  이론 만점: 720점
-
 =============================================================================
-★ 대회 당일 수정 포인트 ★
-
-1. FLIGHT_SPEED          → 드론 테스트 후 속도 조정
-2. OBSTACLES 좌표        → 워밍업 시간에 실제 필드 측정
-3. OBSTACLE_HEIGHTS      → 실제 장애물 높이 측정
-4. fly_move_dis 파라미터 → 방향값 확인 (0~5 중 어떤 값이 어떤 방향인지)
-5. STRATEGY              → 맨 아래에서 전략 선택
+★ 대회 당일 수정: 아래 좌표/높이/속도값을 실측 후 변경
+★ fly_move_dis(방향, 거리) 방향값 확인 필수
 =============================================================================
 """
 
 import whalesbot
 
-# ─────────────────────────────────────────────
-# [설정값] 대회 당일 조정
-# ─────────────────────────────────────────────
-
+# ── 설정값 (대회 당일 수정) ──
 FLIGHT_SPEED = 30
-
-BASE_POS_X = 15
-BASE_POS_Y = 15
-
-OBS_RING1_X = 100
-OBS_RING1_Y = 100
-OBS_RING2_X = 200
-OBS_RING2_Y = 100
-OBS_SBAR_X = 100
-OBS_SBAR_Y = 200
-OBS_DBAR_X = 200
-OBS_DBAR_Y = 200
-OBS_PILLAR_X = 150
-OBS_PILLAR_Y = 150
-OBS_PPAIR_X = 250
-OBS_PPAIR_Y = 150
-OBS_HRING_X = 150
-OBS_HRING_Y = 250
-
-H_RING1 = 70
-H_RING2 = 100
-H_SBAR = 60
-H_DBAR = 60
-H_PILLAR = 80
-H_PPAIR = 80
-H_HRING = 50
-
-# ─────────────────────────────────────────────
-# [상태 변수] 리스트로 관리 (global 키워드 미지원 대응)
-# state[0] = cur_x, state[1] = cur_y, state[2] = cur_h, state[3] = score
-# ─────────────────────────────────────────────
-
-state = [BASE_POS_X, BASE_POS_Y, 0, 0]
-
-# ─────────────────────────────────────────────
-# [기본 비행 함수]
-# ─────────────────────────────────────────────
-
-def init_drone():
-    whalesbot.fly_unlock()
-    whalesbot.wait(1)
-    whalesbot.fly_setspeed(FLIGHT_SPEED)
-    whalesbot.wait(1)
-    whalesbot.AI_TagMapInit()
-    whalesbot.wait(1)
-
-
-def takeoff(height_cm):
-    whalesbot.fly_start()
-    whalesbot.wait(3)
-    if height_cm > 0:
-        whalesbot.fly_moveto(0, 0, height_cm)
-        whalesbot.wait(3)
-    whalesbot.fly_hover()
-    whalesbot.wait(1)
-    state[2] = height_cm
-
-
-def land():
-    whalesbot.fly_land()
-    whalesbot.wait(3)
-    whalesbot.fly_lock()
-    state[2] = 0
-
-
-def forward(cm):
-    whalesbot.fly_move_dis(0, cm)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-
-
-def backward(cm):
-    whalesbot.fly_move_dis(1, cm)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-
-
-def go_left(cm):
-    whalesbot.fly_move_dis(2, cm)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-
-
-def go_right(cm):
-    whalesbot.fly_move_dis(3, cm)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-
-
-def go_up(cm):
-    whalesbot.fly_move_dis(4, cm)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-    state[2] = state[2] + cm
-
-
-def go_down(cm):
-    whalesbot.fly_move_dis(5, cm)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-    state[2] = state[2] - cm
-
-
-def turn_cw(deg):
-    whalesbot.fly_turn(deg)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-
-
-def turn_ccw(deg):
-    whalesbot.fly_turn(-deg)
-    whalesbot.wait(2)
-    whalesbot.fly_hover()
-    whalesbot.wait(0.5)
-
-
-def hover(sec):
-    whalesbot.fly_hover()
-    whalesbot.wait(sec)
-
-
-def set_height(target_cm):
-    diff = target_cm - state[2]
-    if diff > 0:
-        go_up(diff)
-    elif diff < 0:
-        go_down(-diff)
-
-
-# ─────────────────────────────────────────────
-# [네비게이션] 좌표 기반 이동
-# ─────────────────────────────────────────────
-
-def navigate(tx, ty, th):
-    set_height(th)
-
-    dx = tx - state[0]
-    dy = ty - state[1]
-
-    if dx > 0:
-        go_right(dx)
-    elif dx < 0:
-        go_left(-dx)
-
-    if dy > 0:
-        forward(dy)
-    elif dy < 0:
-        backward(-dy)
-
-    hover(0.5)
-    state[0] = tx
-    state[1] = ty
-
-
-# ─────────────────────────────────────────────
-# [원호 비행] 직선+회전 조합
-# ─────────────────────────────────────────────
-
-def fly_arc(radius_cm, angle_deg, cw):
-    steps = angle_deg // 30
-    if steps < 4:
-        steps = 4
-    step_angle = angle_deg / steps
-    half_rad = (step_angle / 2.0) * 3.14159265 / 180.0
-    step_dist = 2.0 * radius_cm * whalesbot.math_sin(half_rad)
-    rounded_dist = whalesbot.math_round(step_dist)
-    rounded_angle = whalesbot.math_round(step_angle)
-
-    i = 0
-    while i < steps:
-        forward(rounded_dist)
-        if cw == 1:
-            turn_cw(rounded_angle)
-        else:
-            turn_ccw(rounded_angle)
-        i = i + 1
-
-
-# ─────────────────────────────────────────────
-# [과제 수행 함수]
-# ─────────────────────────────────────────────
-
-def task_takeoff():
-    init_drone()
-    takeoff(80)
-    hover(1)
-    state[3] = state[3] + 40
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_ring(rx, ry, rh):
-    navigate(rx, ry, rh)
-    hover(0.5)
-    forward(80)
-    hover(0.5)
-    state[3] = state[3] + 50
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_obstacle():
-    navigate(OBS_SBAR_X, OBS_SBAR_Y, H_SBAR - 20)
-    forward(60)
-    hover(0.3)
-    state[3] = state[3] + 40
-
-    go_up(40)
-    fly_arc(30, 360, 1)
-    hover(0.3)
-    state[3] = state[3] + 60
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_double_bar():
-    navigate(OBS_DBAR_X, OBS_DBAR_Y, H_DBAR)
-
-    forward(50)
-    hover(0.3)
-    state[3] = state[3] + 40
-
-    go_up(30)
-    fly_arc(25, 360, 1)
-    hover(0.3)
-    state[3] = state[3] + 60
-
-    fly_arc(25, 360, 0)
-    fly_arc(25, 360, 1)
-    hover(0.5)
-    state[3] = state[3] + 80
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_pillar():
-    navigate(OBS_PILLAR_X, OBS_PILLAR_Y, H_PILLAR)
-    fly_arc(40, 360, 1)
-    hover(0.5)
-    state[3] = state[3] + 60
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_s_flight():
-    navigate(OBS_PPAIR_X, OBS_PPAIR_Y, H_PPAIR)
-    fly_arc(35, 180, 0)
-    fly_arc(35, 180, 1)
-    hover(0.5)
-    state[3] = state[3] + 80
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_horizontal_ring():
-    navigate(OBS_HRING_X, OBS_HRING_Y, H_HRING)
-    hover(0.5)
-    go_up(60)
-    hover(0.5)
-    state[3] = state[3] + 70
-    whalesbot.DebugValue("score", state[3])
-
-
-def task_return():
-    set_height(80)
-    dx = BASE_POS_X - state[0]
-    dy = BASE_POS_Y - state[1]
-
-    if dx > 0:
-        go_right(dx)
-    elif dx < 0:
-        go_left(-dx)
-
-    if dy > 0:
-        forward(dy)
-    elif dy < 0:
-        backward(-dy)
-
-    hover(1)
-    land()
-    state[0] = BASE_POS_X
-    state[1] = BASE_POS_Y
-    state[3] = state[3] + 40
-    whalesbot.DebugValue("score", state[3])
-
-
-# ─────────────────────────────────────────────
-# [메인 실행]
-# ─────────────────────────────────────────────
-
+BASE_X = 15
+BASE_Y = 15
+
+# 장애물 좌표 (cm)
+R1_X = 100
+R1_Y = 100
+R2_X = 200
+R2_Y = 100
+SB_X = 100
+SB_Y = 200
+DB_X = 200
+DB_Y = 200
+PL_X = 150
+PL_Y = 150
+PP_X = 250
+PP_Y = 150
+HR_X = 150
+HR_Y = 250
+
+# 장애물 높이 (cm)
+R1_H = 70
+R2_H = 100
+SB_H = 60
+DB_H = 60
+PL_H = 80
+PP_H = 80
+HR_H = 50
+
+# 전략: "default", "safe", "speed"
 STRATEGY = "default"
 
+# ── 초기화 ──
 whalesbot.resettime()
+whalesbot.fly_unlock()
+whalesbot.wait(1)
+whalesbot.fly_setspeed(FLIGHT_SPEED)
+whalesbot.wait(1)
+whalesbot.AI_TagMapInit()
+whalesbot.wait(1)
 
-task_takeoff()
+# ── 과제1: 이륙 (40점) ──
+whalesbot.fly_start()
+whalesbot.wait(3)
+whalesbot.fly_moveto(0, 0, 80)
+whalesbot.wait(3)
+whalesbot.fly_hover()
+whalesbot.wait(1)
+cur_x = BASE_X
+cur_y = BASE_Y
+cur_h = 80
+score = 40
+whalesbot.DebugValue("score", score)
+
+# ── 전략별 과제 순서 ──
 
 if STRATEGY == "default":
-    task_double_bar()
-    task_ring(OBS_RING1_X, OBS_RING1_Y, H_RING1)
-    task_ring(OBS_RING2_X, OBS_RING2_Y, H_RING2)
-    task_obstacle()
-    task_s_flight()
-    task_horizontal_ring()
-    task_pillar()
+    # --- 과제4: 이중 가로봉 (180점) ---
+    # 높이 조정
+    diff = DB_H - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = DB_H
+    # X이동
+    dx = DB_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    # Y이동
+    dy = DB_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = DB_X
+    cur_y = DB_Y
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    # 사이 통과
+    whalesbot.fly_move_dis(0, 50)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.3)
+    score = score + 40
+    # 상승 후 회전
+    whalesbot.fly_move_dis(4, 30)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    cur_h = cur_h + 30
+    # 원호 360도 시계방향 (25cm 반경)
+    i = 0
+    while i < 12:
+        whalesbot.fly_move_dis(0, 13)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    whalesbot.fly_hover()
+    whalesbot.wait(0.3)
+    score = score + 60
+    # 8자 비행: 반시계 360
+    i = 0
+    while i < 12:
+        whalesbot.fly_move_dis(0, 13)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(-30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    # 8자 비행: 시계 360
+    i = 0
+    while i < 12:
+        whalesbot.fly_move_dis(0, 13)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    score = score + 80
+    whalesbot.DebugValue("score", score)
 
-elif STRATEGY == "safe":
-    task_ring(OBS_RING1_X, OBS_RING1_Y, H_RING1)
-    task_ring(OBS_RING2_X, OBS_RING2_Y, H_RING2)
-    task_pillar()
-    task_obstacle()
-    task_s_flight()
-    task_horizontal_ring()
-    task_double_bar()
+    # --- 과제2: 링1 통과 (50점) ---
+    diff = R1_H - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = R1_H
+    dx = R1_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    dy = R1_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = R1_X
+    cur_y = R1_Y
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    whalesbot.fly_move_dis(0, 80)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    score = score + 50
+    whalesbot.DebugValue("score", score)
 
-elif STRATEGY == "speed":
-    task_ring(OBS_RING1_X, OBS_RING1_Y, H_RING1)
-    task_obstacle()
-    task_pillar()
-    task_ring(OBS_RING2_X, OBS_RING2_Y, H_RING2)
-    task_double_bar()
-    task_s_flight()
-    task_horizontal_ring()
+    # --- 과제2: 링2 통과 (50점) ---
+    diff = R2_H - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = R2_H
+    dx = R2_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    dy = R2_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = R2_X
+    cur_y = R2_Y
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    whalesbot.fly_move_dis(0, 80)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    score = score + 50
+    whalesbot.DebugValue("score", score)
 
-task_return()
+    # --- 과제3: 장애물 통과 (100점) ---
+    target_h = SB_H - 20
+    diff = target_h - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = target_h
+    dx = SB_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    dy = SB_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = SB_X
+    cur_y = SB_Y
+    # 아래 통과
+    whalesbot.fly_move_dis(0, 60)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.3)
+    score = score + 40
+    # 상승 후 회전
+    whalesbot.fly_move_dis(4, 40)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    cur_h = cur_h + 40
+    i = 0
+    while i < 12:
+        whalesbot.fly_move_dis(0, 16)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    whalesbot.fly_hover()
+    whalesbot.wait(0.3)
+    score = score + 60
+    whalesbot.DebugValue("score", score)
 
-whalesbot.DebugValue("final_score", state[3])
+    # --- 과제6: S자 비행 (80점) ---
+    diff = PP_H - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = PP_H
+    dx = PP_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    dy = PP_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = PP_X
+    cur_y = PP_Y
+    # 반시계 반원
+    i = 0
+    while i < 6:
+        whalesbot.fly_move_dis(0, 18)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(-30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    # 시계 반원
+    i = 0
+    while i < 6:
+        whalesbot.fly_move_dis(0, 18)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    score = score + 80
+    whalesbot.DebugValue("score", score)
+
+    # --- 과제7: 수평 링 상승 통과 (70점) ---
+    diff = HR_H - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = HR_H
+    dx = HR_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    dy = HR_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = HR_X
+    cur_y = HR_Y
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    whalesbot.fly_move_dis(4, 60)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    cur_h = cur_h + 60
+    score = score + 70
+    whalesbot.DebugValue("score", score)
+
+    # --- 과제5: 기둥 선회 (60점) ---
+    diff = PL_H - cur_h
+    if diff > 0:
+        whalesbot.fly_move_dis(4, diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif diff < 0:
+        whalesbot.fly_move_dis(5, -diff)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_h = PL_H
+    dx = PL_X - cur_x
+    if dx > 0:
+        whalesbot.fly_move_dis(3, dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dx < 0:
+        whalesbot.fly_move_dis(2, -dx)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    dy = PL_Y - cur_y
+    if dy > 0:
+        whalesbot.fly_move_dis(0, dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    elif dy < 0:
+        whalesbot.fly_move_dis(1, -dy)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.5)
+    cur_x = PL_X
+    cur_y = PL_Y
+    i = 0
+    while i < 12:
+        whalesbot.fly_move_dis(0, 21)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        whalesbot.fly_turn(30)
+        whalesbot.wait(2)
+        whalesbot.fly_hover()
+        whalesbot.wait(0.3)
+        i = i + 1
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+    score = score + 60
+    whalesbot.DebugValue("score", score)
+
+# ── 과제8: 베이스 복귀 (40점) ──
+diff = 80 - cur_h
+if diff > 0:
+    whalesbot.fly_move_dis(4, diff)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+elif diff < 0:
+    whalesbot.fly_move_dis(5, -diff)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+
+dx = BASE_X - cur_x
+if dx > 0:
+    whalesbot.fly_move_dis(3, dx)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+elif dx < 0:
+    whalesbot.fly_move_dis(2, -dx)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+
+dy = BASE_Y - cur_y
+if dy > 0:
+    whalesbot.fly_move_dis(0, dy)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+elif dy < 0:
+    whalesbot.fly_move_dis(1, -dy)
+    whalesbot.wait(2)
+    whalesbot.fly_hover()
+    whalesbot.wait(0.5)
+
+whalesbot.fly_hover()
+whalesbot.wait(1)
+whalesbot.fly_land()
+whalesbot.wait(3)
+whalesbot.fly_lock()
+score = score + 40
+
+whalesbot.DebugValue("final_score", score)
 whalesbot.DebugValue("time_sec", whalesbot.seconds())
