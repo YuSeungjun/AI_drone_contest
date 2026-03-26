@@ -51,8 +51,8 @@ fly_unlock()
 wait(1)
 fly_setspeed(FLIGHT_SPEED)
 wait(1)
-AI_TagMapInit()
-wait(1)
+# AI_TagMapInit은 파라미터 필요 - 대회장에서 태그맵 크기 확인 후 추가
+# 예: AI_TagMapInit(300, 300) 등
 
 # ── 과제1: 이륙 (40점) ──
 fly_start()
