@@ -55,9 +55,7 @@ wait(1)
 # 예: AI_TagMapInit(300, 300) 등
 
 # ── 과제1: 이륙 (40점) ──
-fly_start()
-wait(3)
-fly_moveto(0, 0, 80)
+fly_start(80)
 wait(3)
 fly_hover()
 wait(1)
