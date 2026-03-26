@@ -6,7 +6,7 @@
 환경: WhalesBot Python 전용 (from whalesbot import * 만 허용)
 =============================================================================
 ★ 대회 당일 수정: 아래 좌표/높이/속도값을 실측 후 변경
-★ fly_moveto(고도, 속도, x오프셋, y오프셋) = 상대이동
+★ fly_moveto(x, y, z, 속도) = 상대이동 (cm단위, 속도는 cm/s)
 ★ fly_start(고도) = 자동이륙
 =============================================================================
 """
@@ -67,10 +67,10 @@ DebugValue("score", score)
 
 if STRATEGY == "default":
     # --- 과제4: 이중 가로봉 (180점) ---
-    # 베이스 -> 이중가로봉 위치로 이동
     dx = DB_X - cur_x
     dy = DB_Y - cur_y
-    fly_moveto(DB_H, SPD, dx, dy)
+    dz = DB_H - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -78,22 +78,22 @@ if STRATEGY == "default":
     cur_y = DB_Y
     cur_h = DB_H
     # 사이 통과: 전진 50cm
-    fly_moveto(cur_h, SPD, 0, 50)
+    fly_moveto(0, 50, 0, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
     cur_y = cur_y + 50
     score = score + 40
-    # 상승
-    cur_h = cur_h + 30
-    fly_moveto(cur_h, SPD, 0, 0)
+    # 상승 30cm
+    fly_moveto(0, 0, 30, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
+    cur_h = cur_h + 30
     # 원호 360도 시계방향 (25cm 반경, 12스텝)
     i = 0
     while i < 12:
-        fly_moveto(cur_h, SPD, 0, 13)
+        fly_moveto(0, 13, 0, SPD)
         wait(2)
         fly_turn(30)
         wait(1)
@@ -106,7 +106,7 @@ if STRATEGY == "default":
     # 8자 비행: 반시계 360
     i = 0
     while i < 12:
-        fly_moveto(cur_h, SPD, 0, 13)
+        fly_moveto(0, 13, 0, SPD)
         wait(2)
         fly_turn(-30)
         wait(1)
@@ -116,7 +116,7 @@ if STRATEGY == "default":
     # 8자 비행: 시계 360
     i = 0
     while i < 12:
-        fly_moveto(cur_h, SPD, 0, 13)
+        fly_moveto(0, 13, 0, SPD)
         wait(2)
         fly_turn(30)
         wait(1)
@@ -131,7 +131,8 @@ if STRATEGY == "default":
     # --- 과제2: 링1 통과 (50점) ---
     dx = R1_X - cur_x
     dy = R1_Y - cur_y
-    fly_moveto(R1_H, SPD, dx, dy)
+    dz = R1_H - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -139,7 +140,7 @@ if STRATEGY == "default":
     cur_y = R1_Y
     cur_h = R1_H
     # 링 통과: 전진 80cm
-    fly_moveto(cur_h, SPD, 0, 80)
+    fly_moveto(0, 80, 0, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
@@ -150,7 +151,8 @@ if STRATEGY == "default":
     # --- 과제2: 링2 통과 (50점) ---
     dx = R2_X - cur_x
     dy = R2_Y - cur_y
-    fly_moveto(R2_H, SPD, dx, dy)
+    dz = R2_H - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -158,7 +160,7 @@ if STRATEGY == "default":
     cur_y = R2_Y
     cur_h = R2_H
     # 링 통과: 전진 80cm
-    fly_moveto(cur_h, SPD, 0, 80)
+    fly_moveto(0, 80, 0, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
@@ -170,7 +172,8 @@ if STRATEGY == "default":
     target_h = SB_H - 20
     dx = SB_X - cur_x
     dy = SB_Y - cur_y
-    fly_moveto(target_h, SPD, dx, dy)
+    dz = target_h - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -178,21 +181,21 @@ if STRATEGY == "default":
     cur_y = SB_Y
     cur_h = target_h
     # 아래 통과: 전진 60cm
-    fly_moveto(cur_h, SPD, 0, 60)
+    fly_moveto(0, 60, 0, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
     cur_y = cur_y + 60
     score = score + 40
-    # 상승 후 회전
-    cur_h = cur_h + 40
-    fly_moveto(cur_h, SPD, 0, 0)
+    # 상승 40cm 후 회전
+    fly_moveto(0, 0, 40, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
+    cur_h = cur_h + 40
     i = 0
     while i < 12:
-        fly_moveto(cur_h, SPD, 0, 16)
+        fly_moveto(0, 16, 0, SPD)
         wait(2)
         fly_turn(30)
         wait(1)
@@ -207,7 +210,8 @@ if STRATEGY == "default":
     # --- 과제6: S자 비행 (80점) ---
     dx = PP_X - cur_x
     dy = PP_Y - cur_y
-    fly_moveto(PP_H, SPD, dx, dy)
+    dz = PP_H - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -217,7 +221,7 @@ if STRATEGY == "default":
     # 반시계 반원
     i = 0
     while i < 6:
-        fly_moveto(cur_h, SPD, 0, 18)
+        fly_moveto(0, 18, 0, SPD)
         wait(2)
         fly_turn(-30)
         wait(1)
@@ -227,7 +231,7 @@ if STRATEGY == "default":
     # 시계 반원
     i = 0
     while i < 6:
-        fly_moveto(cur_h, SPD, 0, 18)
+        fly_moveto(0, 18, 0, SPD)
         wait(2)
         fly_turn(30)
         wait(1)
@@ -242,7 +246,8 @@ if STRATEGY == "default":
     # --- 과제7: 수평 링 상승 통과 (70점) ---
     dx = HR_X - cur_x
     dy = HR_Y - cur_y
-    fly_moveto(HR_H, SPD, dx, dy)
+    dz = HR_H - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -250,18 +255,19 @@ if STRATEGY == "default":
     cur_y = HR_Y
     cur_h = HR_H
     # 수직 상승 60cm
-    cur_h = cur_h + 60
-    fly_moveto(cur_h, SPD, 0, 0)
+    fly_moveto(0, 0, 60, SPD)
     wait(3)
     fly_hover()
     wait(0.5)
+    cur_h = cur_h + 60
     score = score + 70
     DebugValue("score", score)
 
     # --- 과제5: 기둥 선회 (60점) ---
     dx = PL_X - cur_x
     dy = PL_Y - cur_y
-    fly_moveto(PL_H, SPD, dx, dy)
+    dz = PL_H - cur_h
+    fly_moveto(dx, dy, dz, SPD)
     wait(5)
     fly_hover()
     wait(1)
@@ -270,7 +276,7 @@ if STRATEGY == "default":
     cur_h = PL_H
     i = 0
     while i < 12:
-        fly_moveto(cur_h, SPD, 0, 21)
+        fly_moveto(0, 21, 0, SPD)
         wait(2)
         fly_turn(30)
         wait(1)
@@ -285,7 +291,8 @@ if STRATEGY == "default":
 # ── 과제8: 베이스 복귀 (40점) ──
 dx = BASE_X - cur_x
 dy = BASE_Y - cur_y
-fly_moveto(80, SPD, dx, dy)
+dz = 80 - cur_h
+fly_moveto(dx, dy, dz, SPD)
 wait(5)
 fly_hover()
 wait(1)
